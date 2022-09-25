@@ -19,6 +19,7 @@ fn main() {
                 }
             }
             dp[0][j] = now;
+            println("{}", dp[1]);
         }
 
         { //* 後攻 */
