@@ -12,7 +12,7 @@ use std::cmp::{max, min};
 use itertools::*;
 
 
-fn main() {
+fn _01_bfs() {
     input! {
         n: usize, m: usize, k: usize,
         uv: [(Usize1, Usize1); m],
