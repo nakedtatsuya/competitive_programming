@@ -1,57 +1,67 @@
 use proconio::input;
-use std::cmp::{min, max};
+use proconio::marker::Bytes;
+
+use std::collections::HashSet;
+use std::isize::MIN;
 use std::usize::MAX;
+
+use std::collections::VecDeque;
+
+use std::cmp::{max, min};
+
 use itertools::*;
-use itertools_num::*;
+
 fn main() {
     input! {
-        n:usize, mut k:usize,
-        mut a: [usize; n]
+        t: usize,
+        testcases: [(usize, usize, Bytes); t],
     }
 
-    let mut event = a.clone();
+    for testcase in testcases {
+        println!("{}", if solve(testcase) { "Yes" } else { "No" });
+    }
+}
 
-    event.sort();
+fn solve(testcase: (usize, usize, Vec<u8>)) -> bool {
 
-    // 周回の数
-    let mut pre: usize = 0;
+    let (n, k, a) = testcase;
 
-    // 一周のループ
-    for i in 0..n {
-        // １周で減る量
-        let r: usize = n-i;
+    let one = a.iter().filter(|x| **x == b'1').count();
 
-        // 最初のかごが売り切れるまでに消費する量
-        let num: usize = r*(event[i]-pre);
-
-        // Kに収まるなら消費
-        if num <= k && i != n-1 {
-            k -= num;
-        } else {
-            // 周回の途中
-            pre += k/r;
-            k%=r;
-            for j in 0..n {
-                if a[j] <= pre {
-                    a[j] = 0;
-                } else {
-                    a[j] -= pre;
-                }
-            }
-            for j in 0..n {
-                if k > 0 && a[j] > 0 {
-                    a[j] -= 1;
-                    k -= 1;
-                }
-            }
-            break;
+    let mut zo = (0, 0);
+    let mut ans = 0;
+    // 最初の文字からK文字までチェック
+    for i in 0..k {
+        match a[i] {
+            b'0' => { zo.0 += 1; }
+            b'1' => { zo.1 += 1; }
+            _ => {}
         }
-        pre = event[i];
     }
+    println!("zo.0: {} zo.1: {} one: {}", zo.0, zo.1, one);
 
-    a.iter().for_each(|v| print!("{} ", v));
+    // K文字がすべて1で全部の１の数と一致する場合ANSを1増やす
+    if zo == (0, one) { ans += 1; }
 
-    // println!("{:?}", .sum::<usize>());
+    // Kの単位で1文字ずつチェック
+    for i in k..n {
+        match a[i] {
+            b'0' => { zo.0 += 1; }
+            b'1' => { zo.1 += 1; }
+            _ => {}
+        }
 
+        // Kのスコープから外れる文字をチェック
+        match a[i-k] {
+            b'0' => { zo.0 -= 1; }
+            b'1' => { zo.1 -= 1; }
+            _ => {}
+        }
+
+        // Kを満たす部分があるときはANSを1増やす
+        if zo == (0, one) { ans += 1; }
+        println!("zo.0: {} zo.1: {} one: {}", zo.0, zo.1, one);
+    }
     
+    ans == 1
 }
